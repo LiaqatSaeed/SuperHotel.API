@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-var mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 import {
   DBConnection,
@@ -13,6 +13,19 @@ import Hotel from "../Model/Hotel";
 
 router.use(authenticate, DBConnection, authError);
 router.use(removeEmpty);
+
+router.use("/id/:id", (req, res, next) => {
+  const {
+    params: { id },
+  } = req;
+  Hotel.findById(mongoose.Types.ObjectId(id), (err, user) => {
+    if (err) res.status(500).send(err);
+    else {
+      req.hotel = user;
+      next();
+    }
+  });
+});
 
 var routes = () => {
   router.post("/", async (req, res) => {
@@ -49,7 +62,7 @@ var routes = () => {
     .route("/id/:id")
     //: GET
     .get((req, res) => {
-      res.json({ data: req.Hotel });
+      res.json({ data: req.hotel });
     })
     //: GET PUT
 

@@ -26,10 +26,11 @@ app.get("/", (req, res) => {
 
 var authController = require("./controller/authController.js")();
 var userController = require("./controller/UserController.js")();
+var hotelController = require("./controller/hotelController.js")();
 
 app.use("/api", authController);
 app.use("/api/users", userController);
-app.use("/api/hotels", userController);
+app.use("/api/hotels", hotelController);
 
 app.listen(PORT, () => {
   console.log("Isomorphic JWT login " + PORT);
