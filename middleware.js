@@ -1,11 +1,13 @@
 import jsonwebtoken from "jsonwebtoken";
 import isNil from "lodash/isNil";
+import mongoose from "mongoose";
+import bcrypt from "bcrypt-nodejs";
 
-var mongoose = require("mongoose");
-const mongoDB = "mongodb://127.0.0.1/SuperHotel";
-const bcrypt = require("bcrypt-nodejs");
-const secretKey = "jllgshllWEUJHGHYJkjsfjds90";
-const expiredAfter = 60 * 60 * 100000;
+const { SECRET_KEY = "@secretKey", EXPIRED_AFTER = 0, DB } = process.env;
+
+const mongoDB = DB;
+const secretKey = SECRET_KEY;
+const expiredAfter = parseInt(EXPIRED_AFTER);
 
 const authenticate = (req, res, next) => {
   const token =
@@ -105,12 +107,12 @@ const removeEmpty = (req, res, next) => {
   next();
 };
 
-const getJwtoken = async (Users) => {
+const getJwtoken = async (req, Users) => {
   return await jsonwebtoken.sign(
     {
       expiredAt: new Date().getTime() * expiredAfter,
       Users,
-      id: 1,
+      user_agent: req.get("user-agent") || "",
     },
     secretKey
   );

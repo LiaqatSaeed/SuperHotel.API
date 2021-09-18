@@ -40,10 +40,13 @@ var routes = () => {
               res.status(500).send(err);
             } else {
               var response = {
-                userData: omit(user, "password"),
+                context: omit(user, "password"),
               };
-              response.token = await getJwtoken(user);
-              res.json({ data: response, msg: "Created Successfully" });
+              response.token = await getJwtoken(req, user);
+              res.json({
+                data: response,
+                message: "Account Created Successfully",
+              });
             }
           });
         }
@@ -85,11 +88,11 @@ var routes = () => {
             let response = { error: "Invalid username or password" };
             if (results) {
               response = {
-                userData: omit(LoggedInUser, "password"),
+                context: omit(LoggedInUser, "password"),
               };
-              response.token = await getJwtoken(LoggedInUser);
+              response.token = await getJwtoken(req, LoggedInUser);
             }
-            res.json({ data: response, msg: "Created Successfully" });
+            res.json({ data: response, message: "Log In Successfully" });
           });
         } else {
           res.json({ error: "Invalid username or password" });

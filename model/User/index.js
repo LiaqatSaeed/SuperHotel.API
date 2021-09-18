@@ -15,6 +15,7 @@ const users = new Schema(
       unique: true,
       match: /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
     },
+    name: { type: String },
     password: { type: String },
     role: { type: String, default: "user" },
   },
