@@ -11,7 +11,7 @@ import {
 
 import Hotel from "../Model/Hotel";
 
-router.use(authenticate, DBConnection, authError);
+router.use(DBConnection, authError);
 router.use(removeEmpty);
 
 router.use("/id/:id", (req, res, next) => {
@@ -28,10 +28,10 @@ router.use("/id/:id", (req, res, next) => {
 });
 
 var routes = () => {
-  router.post("/", async (req, res) => {
+  router.post("/", authenticate, async (req, res) => {
     try {
       const { hotel } = req.body;
-      hotel.created_by = req.userModel._id;
+      hotel.createdBy = req.userModel._id;
       var HotelObj = new Hotel(hotel);
       HotelObj.save((err, newHotel) => {
         if (err) throw err;
@@ -66,10 +66,9 @@ var routes = () => {
     })
     //: GET PUT
 
-    .put(async (req, res, next) => {
+    .put(authenticate, async (req, res, next) => {
       const { hotel } = req.body;
-      console.log(Hotel);
-      User.updateOne({ _id: req.params.id }, hotel, function (err, result) {
+      Hotel.updateOne({ _id: req.params.id }, hotel, function (err, result) {
         if (err) {
           res.status(500).send({ error: err, msg: "user Update error" });
         } else {
@@ -81,7 +80,7 @@ var routes = () => {
     })
     //: PATCH
 
-    .patch((req, res) => {
+    .patch(authenticate, (req, res) => {
       Hotel.update({ _id: req.params.id }, req.body)
         .then((result) => {
           res.json({ data: result });
@@ -92,7 +91,7 @@ var routes = () => {
     })
     //: DELETE
 
-    .delete(async (req, res) => {
+    .delete(authenticate, async (req, res) => {
       try {
         Hotel.findByIdAndRemove(req.params.id, (err, todo) => {
           if (err) return res.status(500).send(err);

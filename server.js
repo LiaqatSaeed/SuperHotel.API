@@ -33,5 +33,5 @@ app.use("/api/users", userController);
 app.use("/api/hotels", hotelController);
 
 app.listen(PORT, () => {
-  console.log("Isomorphic JWT login " + PORT);
+  console.log("Super Hotels API running on! " + PORT);
 });

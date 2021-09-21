@@ -2,6 +2,9 @@ import jsonwebtoken from "jsonwebtoken";
 import isNil from "lodash/isNil";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt-nodejs";
+import split from "lodash/split";
+import nth from "lodash/nth";
+import isEmpty from "lodash/isEmpty";
 
 const { SECRET_KEY = "@secretKey", EXPIRED_AFTER = 0, DB } = process.env;
 
@@ -10,20 +13,21 @@ const secretKey = SECRET_KEY;
 const expiredAfter = parseInt(EXPIRED_AFTER);
 
 const authenticate = (req, res, next) => {
-  const token =
-    req.headers.authorization !== undefined
-      ? req.headers.authorization.split(" ")[1] || ""
-      : "";
-  token !== ""
+  const {
+    headers: { authorization },
+  } = req;
+  const token = !isNil(authorization)
+    ? nth(split(authorization, " "), 1) || ""
+    : "";
+  !isEmpty(token)
     ? jsonwebtoken.verify(token, secretKey, (error, decoded) => {
         if (error) {
-          console.log(error);
           next({ error: "token varified failed" });
         } else {
-          const { expiredAt, Users } = decoded;
+          const { expiredAt, context } = decoded;
 
           if (expiredAt > new Date().getTime()) {
-            req.userModel = Users;
+            req.userModel = context;
             next();
           } else {
             next({ error: "token expired" });
@@ -107,11 +111,11 @@ const removeEmpty = (req, res, next) => {
   next();
 };
 
-const getJwtoken = async (req, Users) => {
+const getJwtoken = async (req, context) => {
   return await jsonwebtoken.sign(
     {
       expiredAt: new Date().getTime() * expiredAfter,
-      Users,
+      context,
       user_agent: req.get("user-agent") || "",
     },
     secretKey

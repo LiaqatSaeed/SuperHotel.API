@@ -39,10 +39,7 @@ var routes = () => {
             if (err) {
               res.status(500).send(err);
             } else {
-              var response = {
-                context: omit(user, "password"),
-              };
-              response.token = await getJwtoken(req, user);
+              response.token = await getJwtoken(req, omit(user, "password"));
               res.json({
                 data: response,
                 message: "Account Created Successfully",
@@ -87,10 +84,8 @@ var routes = () => {
           comparePass(password, res, LoggedInUser.password, async (results) => {
             let response = { error: "Invalid username or password" };
             if (results) {
-              response = {
-                context: omit(LoggedInUser, "password"),
-              };
-              response.token = await getJwtoken(req, LoggedInUser);
+              let token = await getJwtoken(req, omit(LoggedInUser, "password"));
+              response = { token };
             }
             res.json({ data: response, message: "Log In Successfully" });
           });
@@ -99,7 +94,6 @@ var routes = () => {
         }
       });
     } catch (error) {
-      console.log(error);
       res.status(500).send({ error: "Invalid username or password" });
     }
   });
